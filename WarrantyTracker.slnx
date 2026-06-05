@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="warrantytracker.client/warrantytracker.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="WarrantyTracker.Server/WarrantyTracker.Server.csproj" />
+</Solution>

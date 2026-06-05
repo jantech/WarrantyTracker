@@ -193,7 +193,9 @@ namespace WarrantyTracker.Server.Controllers
 
             var alreadyRegistered = await _appDbContext.UserWarrantyRegisters
                                                         .AnyAsync(x => x.MobileNumber == request.MobileNumber &&
-                                                                        x.DeviceId == request.DeviceId);
+                                                                        x.DeviceId == request.DeviceId && 
+                                                                        x.PurchaseDate == request.PurchaseDate &&
+                                                                        x.PurchaseSourceId == request.PurchaseSourceId);
 
             if (alreadyRegistered)
             {

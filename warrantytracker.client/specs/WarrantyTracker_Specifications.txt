@@ -1,0 +1,73 @@
+Create a beginner-friendly Warranty Tracker web application using React 19, Vite, TypeScript, Tailwind CSS, React Router DOM, Axios, React Hook Form, and Zod.
+
+Build the following pages:
+
+1. Home Page
+- Navbar with logo and navigation links
+- Hero section with warranty illustration
+- Two action cards:
+  - Register Warranty
+  - Search Warranty
+- Features section:
+  - Easy Registration
+  - Track Anywhere
+  - Secure & Reliable
+
+2. Register Warranty Page
+- Owner Information section:
+  - Owner Name
+  - Mobile Number
+  - Email Address (optional)
+- Device & Purchase Information section:
+  - Device dropdown
+  - Purchase Date
+  - Purchase Source dropdown
+  - Invoice File Upload (optional)
+  - Notes (optional)
+- Use React Hook Form + Zod validation
+- Responsive layout
+- Submit button
+- Show loading state during submission
+
+3. Registration Success Page
+- Success icon
+- Registration ID
+- Buttons:
+  - View My Warranties
+  - Register Another Warranty
+  - Go Home
+
+4. Search Warranty Page
+- Mobile Number input
+- Search button
+- Validation using React Hook Form and Zod
+- Responsive design
+
+5. Warranty Results Page
+- Display warranty cards
+- Show:
+  - Device Name
+  - Model Number
+  - Purchase Date
+  - Warranty Start Date
+  - Warranty End Date
+  - Purchase Source
+  - Status Badge
+- Status colors:
+  - Active = Green
+  - Expiring Soon = Yellow
+  - Expired = Red
+
+Requirements:
+- Use TypeScript interfaces.
+- Create reusable Button, Input, Select, Card, Badge components.
+- Use Axios service layer.
+- Create clean folder structure.
+- Use Tailwind CSS only.
+- Mobile-first responsive design.
+- Beginner-friendly code with comments.
+- No Redux.
+- No complex state management.
+- Use mock API services initially.
+- Follow component-based architecture.
+- Create professional UI similar to a modern SaaS application.

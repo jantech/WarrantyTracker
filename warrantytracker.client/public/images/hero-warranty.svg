@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" fill="none">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f8cff"/>
+      <stop offset="1" stop-color="#1947d8"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="laptop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#374151"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="640" height="420" rx="32" fill="#f8fbff"/>
+  <circle cx="426" cy="104" r="96" fill="#e8f1ff"/>
+  <circle cx="154" cy="300" r="18" fill="#dbeafe"/>
+  <circle cx="504" cy="316" r="12" fill="#dbeafe"/>
+  <path d="M428 58c34 14 58 20 58 20v58c0 46-26 78-58 98-32-20-58-52-58-98V78s24-6 58-20Z" fill="url(#shield)"/>
+  <path d="M402 119l18 18 38-42" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="118" y="182" width="82" height="160" rx="18" fill="url(#phone)" stroke="#0f172a" stroke-width="8"/>
+  <rect x="132" y="203" width="54" height="86" rx="8" fill="#f8fafc" opacity="0.95"/>
+  <rect x="246" y="228" width="188" height="114" rx="14" fill="url(#laptop)"/>
+  <rect x="226" y="212" width="224" height="18" rx="9" fill="#111827"/>
+  <rect x="267" y="244" width="138" height="72" rx="10" fill="#0b1220"/>
+  <path d="M246 342h188l22 28H224l22-28Z" fill="#1f2937"/>
+  <circle cx="534" cy="246" r="52" fill="#111827"/>
+  <circle cx="534" cy="246" r="36" fill="#0f172a"/>
+  <path d="M511 246a23 23 0 1 0 46 0 23 23 0 0 0-46 0Z" fill="#d1d5db"/>
+  <path d="M534 204c28 0 52 22 52 52 0 22-12 41-30 50" stroke="#111827" stroke-width="10" stroke-linecap="round"/>
+</svg>

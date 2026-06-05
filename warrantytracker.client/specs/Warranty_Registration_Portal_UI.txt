@@ -1,0 +1,786 @@
+Based on your latest UI design, this is a much simpler **public warranty registration portal** than the original CRUD-based Warranty Tracker. The flow is:
+
+```text
+Home
+  ↓
+Register Warranty
+  ↓
+Registration Success
+  ↓
+Search Warranty
+  ↓
+Warranty Results
+```
+
+The uploaded UI design clearly contains these 5 screens and focuses on customer self-service warranty registration. 
+
+---
+
+# 1. Recommended Tech Stack
+
+### Frontend
+
+```text
+React 19
+Vite
+TypeScript
+Tailwind CSS
+React Router DOM
+Fecth
+React Hook Form
+Zod Validation
+Lucide React Icons
+```
+
+### Folder Structure
+
+```text
+src/
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│
+├── components/
+│   ├── layout/
+│   ├── forms/
+│   ├── ui/
+│
+├── pages/
+│   ├── Home/
+│   ├── RegisterWarranty/
+│   ├── RegistrationSuccess/
+│   ├── SearchWarranty/
+│   ├── WarrantyResults/
+│
+├── services/
+│   ├── api.ts
+│   ├── warrantyService.ts
+│
+├── types/
+│   ├── warranty.ts
+│
+├── routes/
+│   ├── AppRoutes.tsx
+│
+├── hooks/
+│
+├── utils/
+│
+├── App.tsx
+└── main.tsx
+```
+
+---
+
+# 3. Application Routes
+
+```tsx
+/
+
+Home Page
+
+/register
+
+Register Warranty
+
+/register-success/:registrationId
+
+Registration Success
+
+/search
+
+Search Warranty
+
+/results
+
+Warranty Results
+```
+
+---
+
+# 4. Screens Implementation Plan
+
+---
+
+## Screen 1 - Home Page
+
+### Sections
+
+```text
+Navbar
+Hero Section
+Action Cards
+Features Section
+Footer
+```
+
+### Components
+
+```text
+Navbar.tsx
+
+HeroSection.tsx
+
+ActionCard.tsx
+
+FeatureCard.tsx
+```
+
+### Data
+
+```typescript
+const actions = [
+{
+title: "Register Warranty",
+description: "...",
+path: "/register"
+},
+{
+title: "Search Warranty",
+description: "...",
+path: "/search"
+}
+];
+```
+
+---
+
+## Screen 2 - Register Warranty
+
+### Form Fields
+
+Owner Information
+
+```typescript
+ownerName
+mobileNumber
+emailAddress
+```
+
+Device Information
+
+```typescript
+deviceId
+purchaseDate
+purchaseSourceId
+invoiceFile
+notes
+```
+
+---
+
+### Validation
+
+```typescript
+Owner Name
+
+Required
+
+Mobile Number
+
+Required
+10 digits
+
+Email
+
+Optional
+Valid email
+
+Device
+
+Required
+
+Purchase Date
+
+Required
+
+Purchase Source
+
+Required
+
+Invoice
+
+Optional
+
+Notes
+
+Optional
+```
+
+---
+
+### React Hook Form
+
+```typescript
+useForm<WarrantyRegistrationForm>()
+```
+
+### Submit Flow
+
+```text
+Click Register
+      ↓
+Validation
+      ↓
+POST API
+      ↓
+Success
+      ↓
+Redirect
+```
+
+---
+
+## Screen 3 - Registration Success
+
+### Show
+
+```typescript
+Registration ID
+
+WR-100001
+```
+
+Buttons
+
+```text
+View My Warranties
+
+Register Another Warranty
+
+Go Home
+```
+
+---
+
+## Screen 4 - Search Warranty
+
+### Form
+
+```typescript
+mobileNumber
+```
+
+### Validation
+
+```typescript
+Required
+
+10 Digits
+```
+
+### Flow
+
+```text
+Enter Mobile
+       ↓
+Search
+       ↓
+GET API
+       ↓
+Warranty Results
+```
+
+---
+
+## Screen 5 - Warranty Results
+
+### Card View
+
+Each card displays:
+
+```typescript
+Device Name
+
+Model Number
+
+Purchase Date
+
+Warranty Start
+
+Warranty End
+
+Purchase Source
+
+Status
+```
+
+---
+
+### Status Badge
+
+```typescript
+ACTIVE
+
+EXPIRING_SOON
+
+EXPIRED
+```
+
+---
+
+# 5. Reusable Components
+
+## Button
+
+```tsx
+<Button
+variant="primary"
+size="md"
+/>
+```
+
+---
+
+## Input
+
+```tsx
+<Input
+label=""
+placeholder=""
+error=""
+/>
+```
+
+---
+
+## Select
+
+```tsx
+<Select
+options={[]}
+/>
+```
+
+---
+
+## Status Badge
+
+```tsx
+<WarrantyStatusBadge
+status="ACTIVE"
+/>
+```
+
+---
+
+## Page Container
+
+```tsx
+<PageContainer>
+    {children}
+</PageContainer>
+```
+
+---
+
+# 6. TypeScript Models
+
+## Device
+
+```typescript
+export interface Device {
+  id: number;
+  name: string;
+  brand: string;
+  modelNumber: string;
+  warrantyMonths: number;
+}
+```
+
+---
+
+## Purchase Source
+
+```typescript
+export interface PurchaseSource {
+  id: number;
+  name: string;
+}
+```
+
+---
+
+## Warranty Registration
+
+```typescript
+export interface WarrantyRegistration {
+  ownerName: string;
+  mobileNumber: string;
+  emailAddress?: string;
+
+  deviceId: number;
+
+  purchaseDate: string;
+
+  purchaseSourceId: number;
+
+  invoiceFile?: File;
+
+  notes?: string;
+}
+```
+
+---
+
+## Warranty Result
+
+```typescript
+export interface WarrantyResult {
+  registrationId: string;
+
+  deviceName: string;
+
+  modelNumber: string;
+
+  purchaseDate: string;
+
+  warrantyStartDate: string;
+
+  warrantyEndDate: string;
+
+  purchaseSource: string;
+
+  status: string;
+}
+```
+
+---
+
+# 7. API Integration Layer
+
+## api.ts
+
+```typescript
+const API_BASE_URL = "https://localhost:5001/api";
+
+export async function apiFetch<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers || {}),
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || "Something went wrong");
+  }
+
+  return response.json();
+}
+```
+
+---
+
+## warrantyService.ts
+
+```typescript
+// src/services/warrantyService.ts
+
+import { apiFetch } from "./api";
+import {
+  Device,
+  PurchaseSource,
+  WarrantyRegistration,
+  WarrantyResult,
+} from "../types/warranty";
+
+export const warrantyService = {
+  getDevices: () =>
+    apiFetch<Device[]>("/devices"),
+
+  getPurchaseSources: () =>
+    apiFetch<PurchaseSource[]>("/purchasesources"),
+
+  searchWarrantyByMobile: (mobileNumber: string) =>
+    apiFetch<WarrantyResult[]>(
+      `/warrantyregistrations/search/${mobileNumber}`
+    ),
+};
+```
+
+
+## warrantyService.ts
+
+```typescript
+
+const handleSubmit = async (data: WarrantyRegistrationForm) => {
+  const formData = new FormData();
+
+  formData.append("OwnerName", data.ownerName);
+  formData.append("EmailAddress", data.emailAddress ?? "");
+  formData.append("MobileNumber", data.mobileNumber);
+  formData.append("DeviceId", data.deviceId.toString());
+  formData.append(
+    "PurchaseSourceId",
+    data.purchaseSourceId.toString()
+  );
+  formData.append("PurchaseDate", data.purchaseDate);
+  formData.append("Notes", data.notes ?? "");
+
+  if (data.invoiceFile?.[0]) {
+    formData.append(
+      "InvoiceFile",
+      data.invoiceFile[0]
+    );
+  }
+
+  const response = await fetch(
+	  "https://localhost:7045/api/WarrantyRegistrations",
+	  {
+		method: "POST",
+		headers: {
+		  Accept: "application/json",
+		},
+		body: formData,
+	  }
+	);
+
+  if (!response.ok) {
+    throw new Error("Failed to register warranty");
+  }
+
+  const result = await response.json();
+
+  console.log(result);
+};
+
+```
+
+
+---
+
+## Example Usage in React Component
+
+```typescript
+
+import { useEffect, useState } from "react";
+import { warrantyService } from "../services/warrantyService";
+
+function DeviceDropdown() {
+  const [devices, setDevices] = useState([]);
+
+  useEffect(() => {
+    const loadDevices = async () => {
+      try {
+        const data = await warrantyService.getDevices();
+        setDevices(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadDevices();
+  }, []);
+
+  return (
+    <select>
+      {devices.map((device: any) => (
+        <option key={device.id} value={device.id}>
+          {device.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+export default DeviceDropdown;
+
+```
+
+---
+
+# 8. Assets Required
+
+## Logo
+
+```text
+shield-logo.svg
+```
+
+Used in:
+
+```text
+Navbar
+Footer
+```
+
+---
+
+## Hero Illustration
+
+Use:
+
+```text
+Mobile Phone
+Laptop
+Headphone
+Shield
+```
+
+Formats:
+
+```text
+hero-warranty.svg
+```
+
+---
+
+## Registration Success
+
+```text
+success-check.svg
+```
+
+---
+
+## Search Warranty
+
+```text
+search-document.svg
+```
+
+---
+
+## Empty State
+
+```text
+empty-warranty.svg
+```
+
+---
+
+## Status Icons
+
+```text
+active.svg
+
+warning.svg
+
+expired.svg
+```
+
+---
+
+# 9. Tailwind Theme
+
+## Colors
+
+```javascript
+colors: {
+
+primary: "#1D4ED8",
+
+primaryDark: "#1E3A8A",
+
+success: "#16A34A",
+
+warning: "#F59E0B",
+
+danger: "#DC2626",
+
+grayBg: "#F8FAFC"
+
+}
+```
+
+---
+
+## Border Radius
+
+```javascript
+borderRadius: {
+
+xl: "1rem",
+
+"2xl": "1.5rem"
+}
+```
+
+---
+
+# 10. Responsive Strategy
+
+### Desktop
+
+```text
+2-column layout
+```
+
+### Tablet
+
+```text
+1-column stacked
+```
+
+### Mobile
+
+```text
+Single column
+```
+
+Tailwind:
+
+```html
+grid
+grid-cols-1
+lg:grid-cols-2
+```
+
+---
+
+# 11. Development Order
+
+### Phase 1
+
+```text
+Setup Project
+
+Tailwind
+
+Routing
+
+Layout
+```
+
+### Phase 2
+
+```text
+Home Page
+
+Register Warranty Page
+```
+
+### Phase 3
+
+```text
+Success Page
+
+Search Page
+```
+
+### Phase 4
+
+```text
+Warranty Results Page
+
+API Integration
+```
+
+### Phase 5
+
+```text
+Validation
+
+Loading States
+
+Error Handling
+```
+
+---

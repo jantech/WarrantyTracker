@@ -38,7 +38,7 @@ export default function SearchWarrantyPage() {
       <PageContainer className="pt-8">
         <div className="grid items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
           <div className="flex justify-center lg:justify-start">
-            <img src="/images/search-warranty.svg" alt="Search warranty illustration" className="w-full max-w-[420px]" />
+            <img src="/images/search-warranty.svg" alt="Search warranty illustration" className="w-full max-w-105" />
           </div>
 
           <Card className="w-full max-w-xl">

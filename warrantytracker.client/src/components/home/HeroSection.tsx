@@ -40,7 +40,7 @@ export default function HeroSection() {
             <img
               src="/images/hero-warranty.svg"
               alt="Warranty illustration showing devices and a shield"
-              className="w-full max-w-[560px] drop-shadow-[0_20px_30px_rgba(29,78,216,0.14)]"
+              className="w-full max-w-140 drop-shadow-[0_20px_30px_rgba(29,78,216,0.14)]"
             />
           </div>
         </div>

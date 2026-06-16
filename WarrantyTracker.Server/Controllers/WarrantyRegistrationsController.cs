@@ -233,14 +233,14 @@ namespace WarrantyTracker.Server.Controllers
                     });
                 }
 
-                const long maxFileSize = 5 * 1024 * 1024;
+                const long maxFileSize = 2 * 1024 * 1024;
 
                 if (request.InvoiceFile.Length > maxFileSize)
                 {
                     return BadRequest(new
                     {
                         Message =
-                            "Maximum allowed file size is 5 MB."
+                            "Maximum allowed file size is 2 MB."
                     });
                 }
 
@@ -263,7 +263,7 @@ namespace WarrantyTracker.Server.Controllers
             // Warranty Start
             // ==================================================
 
-            var warrantyStart = DateTime.Today;
+            var warrantyStart = request.PurchaseDate;
 
             // ==================================================
             // Create Registration

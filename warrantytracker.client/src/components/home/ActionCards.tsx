@@ -17,7 +17,7 @@ export default function ActionCards() {
               <p className="mt-2 max-w-sm text-slate-600">
                 Register a new device warranty with your purchase details.
               </p>
-              <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-700 px-4 py-2 text-sm font-semibold text-white">
+              <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-pink-500 px-4 py-2 text-sm font-semibold text-white">
                 Register Now <ArrowRight size={16} />
               </span>
             </Card>

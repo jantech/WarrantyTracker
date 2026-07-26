@@ -8,8 +8,7 @@ namespace WarrantyTracker.Server.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
-        public DbSet<Brand> Brands { get; set; }
-        public DbSet<Device> Devices { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<PurchaseSource> PurchaseSources { get; set; }
         public DbSet<UserWarrantyRegister> UserWarrantyRegisters { get; set; }
 

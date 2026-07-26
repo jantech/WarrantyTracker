@@ -1,10 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WarrantyTracker.Server.Models
 {
-    [Table("devices")]
-    public class Device
+    [Table("products")]
+    public class Product
     {
         [Key]
         [Column("id")]
@@ -16,8 +16,9 @@ namespace WarrantyTracker.Server.Models
         public string Name { get; set; } = string.Empty;
 
         [Required]
-        [Column("brand_id")]
-        public int BrandId { get; set; }
+        [StringLength(50)]
+        [Column("category")]
+        public string Category { get; set; } = string.Empty;
 
         [StringLength(50)]
         [Column("model_number")]
@@ -31,9 +32,6 @@ namespace WarrantyTracker.Server.Models
         public DateTime CreatedAt { get; set; }
 
         // Navigation Property
-        [ForeignKey(nameof(BrandId))]
-        public Brand Brand { get; set; } = null!;
-
         public ICollection<UserWarrantyRegister> WarrantyRegistrations { get; set; } = new List<UserWarrantyRegister>();
 
     }

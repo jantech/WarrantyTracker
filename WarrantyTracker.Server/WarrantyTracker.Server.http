@@ -1,6 +1,0 @@
-@WarrantyTracker.Server_HostAddress = http://localhost:5062
-
-GET {{WarrantyTracker.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

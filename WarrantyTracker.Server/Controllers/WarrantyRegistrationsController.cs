@@ -30,8 +30,7 @@ namespace WarrantyTracker.Server.Controllers
         public async Task<IActionResult> Get()
         {
             var result = await _appDbContext.UserWarrantyRegisters
-                                            .Include(w => w.Device)
-                                                .ThenInclude(d => d.Brand)
+                                            .Include(w => w.Product)
                                             .Include(w => w.PurchaseSource)
                                             .Select(w => new
                                             {
@@ -39,9 +38,9 @@ namespace WarrantyTracker.Server.Controllers
                                                 w.OwnerName,
                                                 w.EmailAddress,
                                                 w.MobileNumber,
-                                                DeviceName = w.Device.Name,
-                                                BrandName = w.Device.Brand.Name,
-                                                w.Device.ModelNumber,
+                                                ProductName = w.Product.Name,
+                                                Category = w.Product.Category,
+                                                w.Product.ModelNumber,
                                                 PurchaseSource = w.PurchaseSource != null ? w.PurchaseSource.Name : null,
                                                 w.PurchaseDate,
                                                 w.WarrantyStart,
@@ -58,8 +57,7 @@ namespace WarrantyTracker.Server.Controllers
         public async Task<IActionResult> Get(long id)
         {
             var result = await _appDbContext.UserWarrantyRegisters
-                                            .Include(w => w.Device)
-                                                .ThenInclude(d => d.Brand)
+                                            .Include(w => w.Product)
                                             .Include(w => w.PurchaseSource)
                                             .Where(w => w.Id == id)
                                             .Select(w => new
@@ -68,9 +66,9 @@ namespace WarrantyTracker.Server.Controllers
                                                 w.OwnerName,
                                                 w.EmailAddress,
                                                 w.MobileNumber,
-                                                DeviceName = w.Device.Name,
-                                                BrandName = w.Device.Brand.Name,
-                                                w.Device.ModelNumber,
+                                                ProductName = w.Product.Name,
+                                                Category = w.Product.Category,
+                                                w.Product.ModelNumber,
                                                 PurchaseSource = w.PurchaseSource != null ? w.PurchaseSource.Name : null,
                                                 w.PurchaseDate,
                                                 w.WarrantyStart,
@@ -92,8 +90,7 @@ namespace WarrantyTracker.Server.Controllers
         public async Task<IActionResult> GetByMobileNumber(string mobileNumber)
         {
             var result = await _appDbContext.UserWarrantyRegisters
-                                            .Include(w => w.Device)
-                                                .ThenInclude(d => d.Brand)
+                                            .Include(w => w.Product)
                                             .Include(w => w.PurchaseSource)
                                             .Where(w => w.MobileNumber == mobileNumber)
                                             .Select(w => new
@@ -102,9 +99,9 @@ namespace WarrantyTracker.Server.Controllers
                                                 w.OwnerName,
                                                 w.EmailAddress,
                                                 w.MobileNumber,
-                                                DeviceName = w.Device.Name,
-                                                BrandName = w.Device.Brand.Name,
-                                                w.Device.ModelNumber,
+                                                ProductName = w.Product.Name,
+                                                Category = w.Product.Category,
+                                                w.Product.ModelNumber,
                                                 PurchaseSource = w.PurchaseSource != null ? w.PurchaseSource.Name : null,
                                                 w.PurchaseDate,
                                                 w.WarrantyStart,
@@ -128,18 +125,17 @@ namespace WarrantyTracker.Server.Controllers
         public async Task<IActionResult> Post([FromForm] CreateWarrantyRegistrationRequest request)
         {
             // ==================================================
-            // Validate Device
+            // Validate Product
             // ==================================================
 
-            var device = await _appDbContext.Devices
-                .Include(d => d.Brand)
-                .FirstOrDefaultAsync(d => d.Id == request.DeviceId);
+            var product = await _appDbContext.Products
+                .FirstOrDefaultAsync(p => p.Id == request.ProductId);
 
-            if (device == null)
+            if (product == null)
             {
                 return BadRequest(new
                 {
-                    Message = "Selected device does not exist."
+                    Message = "Selected product does not exist."
                 });
             }
 
@@ -173,17 +169,17 @@ namespace WarrantyTracker.Server.Controllers
             }
 
             // ==================================================
-            // Registration must happen within 30 days
+            // Registration must happen within 60 days
             // ==================================================
 
             var daysSincePurchase = (DateTime.Today - request.PurchaseDate.Date).Days;
 
-            if (daysSincePurchase > 30)
+            if (daysSincePurchase > 60)
             {
                 return BadRequest(new
                 {
                     Message =
-                        "Warranty registration must be completed within 30 days of purchase."
+                        "Warranty registration must be completed within 60 days of purchase."
                 });
             }
 
@@ -193,7 +189,7 @@ namespace WarrantyTracker.Server.Controllers
 
             var alreadyRegistered = await _appDbContext.UserWarrantyRegisters
                                                         .AnyAsync(x => x.MobileNumber == request.MobileNumber &&
-                                                                        x.DeviceId == request.DeviceId && 
+                                                                        x.ProductId == request.ProductId &&
                                                                         x.PurchaseDate == request.PurchaseDate &&
                                                                         x.PurchaseSourceId == request.PurchaseSourceId);
 
@@ -202,7 +198,7 @@ namespace WarrantyTracker.Server.Controllers
                 return Conflict(new
                 {
                     Message =
-                        "This device is already registered for the given mobile number."
+                        "This product is already registered for the given mobile number."
                 });
             }
 
@@ -276,7 +272,7 @@ namespace WarrantyTracker.Server.Controllers
                     EmailAddress = request.EmailAddress,
                     MobileNumber = request.MobileNumber,
 
-                    DeviceId = request.DeviceId,
+                    ProductId = request.ProductId,
                     PurchaseSourceId = request.PurchaseSourceId,
 
                     PurchaseDate = request.PurchaseDate,
@@ -296,7 +292,7 @@ namespace WarrantyTracker.Server.Controllers
             // Calculate Warranty End
             // ==================================================
 
-            var warrantyEnd = warrantyStart.AddMonths(device.WarrantyMonths);
+            var warrantyEnd = warrantyStart.AddMonths(product.WarrantyMonths);
 
             return CreatedAtAction(
                 nameof(Get),
@@ -307,14 +303,14 @@ namespace WarrantyTracker.Server.Controllers
                     registration.OwnerName,
                     registration.MobileNumber,
 
-                    Brand = device.Brand.Name,
-                    Device = device.Name,
-                    device.ModelNumber,
+                    Product = product.Name,
+                    product.Category,
+                    product.ModelNumber,
 
                     registration.PurchaseDate,
                     registration.WarrantyStart,
 
-                    device.WarrantyMonths,
+                    product.WarrantyMonths,
 
                     WarrantyEnd = warrantyEnd,
 
@@ -322,18 +318,6 @@ namespace WarrantyTracker.Server.Controllers
 
                     Message = "Warranty registered successfully."
                 });
-        }
-
-        // PUT api/<WarrantyRegistrationsController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<WarrantyRegistrationsController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

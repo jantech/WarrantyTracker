@@ -17,7 +17,7 @@ export default function HeroSection() {
                 Warranty Tracker
               </h1>
               <p className="max-w-lg text-base leading-7 text-slate-600 sm:text-lg">
-                Register your electronic devices and track your warranty details in one place.
+                Register your JP Solar products and track your warranty details in one place.
               </p>
             </div>
 
@@ -39,7 +39,7 @@ export default function HeroSection() {
             <div className="absolute inset-0 -z-10 mx-auto h-[88%] w-[88%] rounded-full bg-blue-100/80 blur-3xl" />
             <img
               src="/images/hero-warranty.svg"
-              alt="Warranty illustration showing devices and a shield"
+              alt="Warranty illustration showing solar products and a shield"
               className="w-full max-w-140 drop-shadow-[0_20px_30px_rgba(29,78,216,0.14)]"
             />
           </div>

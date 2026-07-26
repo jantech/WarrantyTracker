@@ -1,9 +1,9 @@
 export type WarrantyStatus = 'ACTIVE' | 'EXPIRING_SOON' | 'EXPIRED';
 
-export interface Device {
+export interface Product {
   id: number;
   name: string;
-  brand: string;
+  category: string;
   modelNumber: string;
   warrantyMonths: number;
 }
@@ -17,7 +17,7 @@ export interface WarrantyRegistration {
   ownerName: string;
   mobileNumber: string;
   emailAddress?: string;
-  deviceId: number;
+  productId: number;
   purchaseDate: string;
   purchaseSourceId: number;
   invoiceFile?: File;
@@ -29,8 +29,8 @@ export interface WarrantyResult {
   ownerName: string;
   emailAddress?: string | null;
   mobileNumber: string;
-  deviceName: string;
-  brandName: string;
+  productName: string;
+  category: string;
   modelNumber: string;
   purchaseSource: string;
   purchaseDate: string;
@@ -45,8 +45,8 @@ export interface RegistrationResponse {
   id: number;
   ownerName: string;
   mobileNumber: string;
-  brand: string;
-  device: string;
+  product: string;
+  category: string;
   modelNumber: string;
   purchaseDate: string;
   warrantyStart: string;

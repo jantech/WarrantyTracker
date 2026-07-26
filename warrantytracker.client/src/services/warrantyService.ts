@@ -1,6 +1,6 @@
-import { apiFetch } from './api';
+import { apiFetch, ApiError } from './api';
 import type {
-  Device,
+  Product,
   PurchaseSource,
   RegistrationResponse,
   WarrantyRegistration,
@@ -13,18 +13,14 @@ interface WarrantyRegistrationApiResponse {
   ownerName: string;
   emailAddress?: string | null;
   mobileNumber: string;
-  deviceName: string;
-  brandName: string;
+  productName: string;
+  category: string;
   modelNumber: string;
   purchaseSource: string;
   purchaseDate: string;
   warrantyStart: string;
   invoiceFile?: string | null;
   notes?: string | null;
-}
-
-function toIsoDate(date: Date): string {
-  return date.toISOString().split('T')[0];
 }
 
 function getWarrantyStatus(endDate: Date): WarrantyStatus {
@@ -42,16 +38,27 @@ function getWarrantyStatus(endDate: Date): WarrantyStatus {
   return 'ACTIVE';
 }
 
+// Pure calendar-date arithmetic (no Date-object timezone conversions), so warranty
+// end dates don't drift by a day depending on the browser's local timezone offset.
 function computeWarrantyEndDate(warrantyStart: string, warrantyMonths: number): string {
-  const warrantyStartDate = new Date(warrantyStart);
-  const warrantyEnd = new Date(warrantyStartDate);
-  warrantyEnd.setMonth(warrantyEnd.getMonth() + warrantyMonths);
-  return toIsoDate(warrantyEnd);
+  const [year, month, day] = warrantyStart.split('T')[0].split('-').map(Number);
+
+  const totalMonths = month - 1 + warrantyMonths;
+  const endYear = year + Math.floor(totalMonths / 12);
+  const endMonthIndex = totalMonths % 12;
+
+  const daysInEndMonth = new Date(Date.UTC(endYear, endMonthIndex + 1, 0)).getUTCDate();
+  const endDay = Math.min(day, daysInEndMonth);
+
+  const mm = String(endMonthIndex + 1).padStart(2, '0');
+  const dd = String(endDay).padStart(2, '0');
+
+  return `${endYear}-${mm}-${dd}`;
 }
 
-function mapWarrantyResult(item: WarrantyRegistrationApiResponse, devices: Device[]): WarrantyResult {
-  const matchedDevice = devices.find((device) => device.modelNumber.toLowerCase() === item.modelNumber.toLowerCase());
-  const warrantyMonths = matchedDevice?.warrantyMonths ?? 12;
+function mapWarrantyResult(item: WarrantyRegistrationApiResponse, products: Product[]): WarrantyResult {
+  const matchedProduct = products.find((product) => product.modelNumber.toLowerCase() === item.modelNumber.toLowerCase());
+  const warrantyMonths = matchedProduct?.warrantyMonths ?? 12;
   const warrantyEndDate = computeWarrantyEndDate(item.warrantyStart, warrantyMonths);
 
   return {
@@ -59,8 +66,8 @@ function mapWarrantyResult(item: WarrantyRegistrationApiResponse, devices: Devic
     ownerName: item.ownerName,
     emailAddress: item.emailAddress ?? null,
     mobileNumber: item.mobileNumber,
-    deviceName: item.deviceName,
-    brandName: item.brandName,
+    productName: item.productName,
+    category: item.category,
     modelNumber: item.modelNumber,
     purchaseSource: item.purchaseSource,
     purchaseDate: item.purchaseDate,
@@ -73,8 +80,8 @@ function mapWarrantyResult(item: WarrantyRegistrationApiResponse, devices: Devic
 }
 
 export const warrantyService = {
-  async getDevices(): Promise<Device[]> {
-    return apiFetch<Device[]>({ method: 'GET', url: '/Devices' });
+  async getProducts(): Promise<Product[]> {
+    return apiFetch<Product[]>({ method: 'GET', url: '/Products' });
   },
 
   async getPurchaseSources(): Promise<PurchaseSource[]> {
@@ -86,7 +93,7 @@ export const warrantyService = {
     formData.append('OwnerName', payload.ownerName);
     formData.append('EmailAddress', payload.emailAddress ?? '');
     formData.append('MobileNumber', payload.mobileNumber);
-    formData.append('DeviceId', payload.deviceId.toString());
+    formData.append('ProductId', payload.productId.toString());
     formData.append('PurchaseSourceId', payload.purchaseSourceId.toString());
     formData.append('PurchaseDate', payload.purchaseDate);
     formData.append('Notes', payload.notes ?? '');
@@ -105,14 +112,23 @@ export const warrantyService = {
   },
 
   async searchWarrantyByMobile(mobileNumber: string): Promise<WarrantyResult[]> {
-    const [devices, response] = await Promise.all([
-      warrantyService.getDevices(),
-      apiFetch<WarrantyRegistrationApiResponse[]>({
+    const products = await warrantyService.getProducts();
+
+    try {
+      const response = await apiFetch<WarrantyRegistrationApiResponse[]>({
         method: 'GET',
         url: `/WarrantyRegistrations/mobile/${mobileNumber}`,
-      }),
-    ]);
+      });
 
-    return response.map((item) => mapWarrantyResult(item, devices));
+      return response.map((item) => mapWarrantyResult(item, products));
+    } catch (error) {
+      // The API returns 404 when no registrations exist for this mobile number -
+      // that's a valid "no results" outcome, not a failure.
+      if (error instanceof ApiError && error.status === 404) {
+        return [];
+      }
+
+      throw error;
+    }
   },
 };

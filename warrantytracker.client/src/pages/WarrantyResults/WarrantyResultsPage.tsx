@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { ShieldCheck, StickyNote, Store } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/home/Footer';
 import PageContainer from '../../components/ui/PageContainer';
@@ -7,7 +8,9 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import WarrantyStatusBadge from '../../components/ui/WarrantyStatusBadge';
 import { warrantyService } from '../../services/warrantyService';
-import type { WarrantyResult } from '../../types/warranty';
+import { getProductThumbnail } from '../../utils/productThumbnail';
+import { getRemainingWarrantyLabel } from '../../utils/remainingWarrantyTime';
+import type { WarrantyResult, WarrantyStatus } from '../../types/warranty';
 
 function formatApiDate(value: string): string {
   return new Date(value).toLocaleDateString('en-GB', {
@@ -17,19 +20,11 @@ function formatApiDate(value: string): string {
   });
 }
 
-function getThumbnail(item: WarrantyResult): string {
-  const text = `${item.deviceName} ${item.brandName}`.toLowerCase();
-
-  if (text.includes('phone') || text.includes('iphone') || text.includes('samsung') || text.includes('mobile')) {
-    return '/images/device-phone.svg';
-  }
-
-  if (text.includes('washing') || text.includes('washer')) {
-    return '/images/device-washer.svg';
-  }
-
-  return '/images/device-laptop.svg';
-}
+const statusAccentClasses: Record<WarrantyStatus, string> = {
+  ACTIVE: 'border-l-4 border-l-emerald-500',
+  EXPIRING_SOON: 'border-l-4 border-l-amber-500',
+  EXPIRED: 'border-l-4 border-l-red-500',
+};
 
 export default function WarrantyResultsPage() {
   const [searchParams] = useSearchParams();
@@ -99,36 +94,71 @@ export default function WarrantyResultsPage() {
           {!isLoading && !error && results.length > 0 ? (
             <div className="space-y-4">
               {results.map((item) => (
-                <Card key={item.id} className="p-4">
-                  <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_0.65fr] lg:items-center">
-                    <div className="flex items-center gap-4">
-                      <img src={getThumbnail(item)} alt="Device thumbnail" className="h-20 w-20 rounded-xl bg-slate-50 object-contain p-2" />
+                <Card key={item.id} className={`p-5 ${statusAccentClasses[item.status]}`}>
+                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex items-start gap-4">
+                      <img src={getProductThumbnail(item.category)} alt="Product thumbnail" className="h-16 w-16 shrink-0 rounded-xl bg-slate-50 object-contain p-2" />
                       <div>
-                        <h3 className="text-lg font-bold text-blue-950">{item.brandName} {item.deviceName}</h3>
-                        <p className="mt-1 text-sm text-slate-600">Model: {item.modelNumber}</p>
+                        <span className="inline-block rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-blue-700">
+                          {item.category}
+                        </span>
+                        <h3 className="mt-1.5 text-lg font-bold leading-tight text-blue-950">{item.productName}</h3>
+                        <p className="mt-0.5 text-sm text-slate-500">
+                          Model: {item.modelNumber} &middot; Registered by {item.ownerName}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="text-sm text-slate-700">
-                      <p className="text-slate-500">Purchase Date</p>
-                      <p className="mt-1 font-semibold text-slate-900">{formatApiDate(item.purchaseDate)}</p>
-                    </div>
-
-                    <div className="text-sm text-slate-700">
-                      <p className="text-slate-500">Warranty Start</p>
-                      <p className="mt-1 font-semibold text-slate-900">{formatApiDate(item.warrantyStartDate)}</p>
-                    </div>
-
-                    <div className="text-sm text-slate-700">
-                      <p className="text-slate-500">Warranty End</p>
-                      <p className="mt-1 font-semibold text-slate-900">{formatApiDate(item.warrantyEndDate)}</p>
-                      <p className="mt-1 text-xs text-slate-500">Purchase Source: {item.purchaseSource}</p>
-                    </div>
-
-                    <div className="flex items-center justify-start lg:justify-end">
+                    <div className="flex flex-row items-center gap-2 lg:flex-col lg:items-end lg:gap-1">
                       <WarrantyStatusBadge status={item.status} />
+                      <span className={`text-xs font-medium ${item.status === 'EXPIRED' ? 'text-red-600' : 'text-slate-500'}`}>
+                        {getRemainingWarrantyLabel(item.warrantyEndDate, item.status === 'EXPIRED')}
+                      </span>
                     </div>
                   </div>
+
+                  <div className="my-4 h-px bg-slate-100" />
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <Store size={13} /> Purchase Details
+                      </div>
+                      <dl className="mt-2 space-y-1.5 text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <dt className="text-slate-500">Purchase Date</dt>
+                          <dd className="font-semibold text-slate-900">{formatApiDate(item.purchaseDate)}</dd>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <dt className="text-slate-500">Purchase Source</dt>
+                          <dd className="font-semibold text-slate-900">{item.purchaseSource}</dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <ShieldCheck size={13} /> Warranty Period
+                      </div>
+                      <dl className="mt-2 space-y-1.5 text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <dt className="text-slate-500">Start</dt>
+                          <dd className="font-semibold text-slate-900">{formatApiDate(item.warrantyStartDate)}</dd>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <dt className="text-slate-500">End</dt>
+                          <dd className="font-semibold text-slate-900">{formatApiDate(item.warrantyEndDate)}</dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+
+                  {item.notes ? (
+                    <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+                      <StickyNote size={14} className="mt-0.5 shrink-0" />
+                      <p>{item.notes}</p>
+                    </div>
+                  ) : null}
                 </Card>
               ))}
             </div>

@@ -25,8 +25,8 @@ namespace WarrantyTracker.Server.Models
         public string MobileNumber { get; set; } = string.Empty;
 
         [Required]
-        [Column("device_id")]
-        public int DeviceId { get; set; }
+        [Column("product_id")]
+        public int ProductId { get; set; }
 
         [Column("purchase_source_id")]
         public int? PurchaseSourceId { get; set; }
@@ -51,8 +51,8 @@ namespace WarrantyTracker.Server.Models
 
         // Navigation Properties
 
-        [ForeignKey(nameof(DeviceId))]
-        public Device Device { get; set; } = null!;
+        [ForeignKey(nameof(ProductId))]
+        public Product Product { get; set; } = null!;
 
         [ForeignKey(nameof(PurchaseSourceId))]
         public PurchaseSource? PurchaseSource { get; set; }

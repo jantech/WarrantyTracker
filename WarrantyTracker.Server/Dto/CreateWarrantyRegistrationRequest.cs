@@ -17,7 +17,7 @@ namespace WarrantyTracker.Server.Dto
         public string MobileNumber { get; set; } = string.Empty;
 
         [Required]
-        public int DeviceId { get; set; }
+        public int ProductId { get; set; }
 
         public int? PurchaseSourceId { get; set; }
 

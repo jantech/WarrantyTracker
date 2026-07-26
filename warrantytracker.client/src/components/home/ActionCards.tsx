@@ -15,7 +15,7 @@ export default function ActionCards() {
               </div>
               <h3 className="mt-4 text-2xl font-bold text-blue-950">Register Warranty</h3>
               <p className="mt-2 max-w-sm text-slate-600">
-                Register a new device warranty with your purchase details.
+                Register a new solar product warranty with your purchase details.
               </p>
               <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-pink-500 px-4 py-2 text-sm font-semibold text-white">
                 Register Now <ArrowRight size={16} />

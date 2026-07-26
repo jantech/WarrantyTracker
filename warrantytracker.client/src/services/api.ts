@@ -5,6 +5,16 @@ export interface ApiRequestConfig {
   data?: unknown;
 }
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 // Use the Vite proxy path in development; vite.config.ts forwards /api to the backend target.
 const API_BASE_URL = '/api';
 
@@ -39,7 +49,7 @@ export async function apiFetch<T>(config: ApiRequestConfig): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(await readErrorMessage(response));
+    throw new ApiError(await readErrorMessage(response), response.status);
   }
 
   return (await response.json()) as T;

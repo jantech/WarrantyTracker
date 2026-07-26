@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Scalar.AspNetCore;
 using WarrantyTracker.Server.Data;
 
@@ -22,8 +23,12 @@ builder.Services.AddOpenApi();
 var app = builder.Build();
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapStaticAssets();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShieldCheck, StickyNote, Store } from 'lucide-react';
+import { FileText, ShieldCheck, StickyNote, Store } from 'lucide-react';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/home/Footer';
 import PageContainer from '../../components/ui/PageContainer';
@@ -106,6 +106,16 @@ export default function WarrantyResultsPage() {
                         <p className="mt-0.5 text-sm text-slate-500">
                           Model: {item.modelNumber} &middot; Registered by {item.ownerName}
                         </p>
+                        {item.invoiceFile ? (
+                          <a
+                            href={item.invoiceFile}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-900 hover:underline"
+                          >
+                            <FileText size={13} /> View Invoice
+                          </a>
+                        ) : null}
                       </div>
                     </div>
 

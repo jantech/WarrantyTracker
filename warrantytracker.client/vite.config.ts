@@ -52,6 +52,11 @@ export default defineConfig({
                 target,
                 secure: false,
                 changeOrigin: true
+            },
+            '^/uploads': {
+                target,
+                secure: false,
+                changeOrigin: true
             }
         },
         port: parseInt(env.DEV_SERVER_PORT || '63164'),
